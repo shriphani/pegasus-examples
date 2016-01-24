@@ -60,14 +60,16 @@
                      (-> obj :url uri/host))
                 
                 (let [url (:url obj)
-                      resource (-> obj
-                                   :body
-                                   xml->doc)
+                      resource (try (-> obj
+                                        :body
+                                        xml->doc)
+                                    (catch Exception e nil))
 
                       ;; extract the articles
                       articles (map
                                 :text
-                                ($x "//item/link" resource))]
+                                (try ($x "//item/link" resource)
+                                     (catch Exception e nil)))]
                   
                   ;; add extracted links to the supplied object
                   (merge obj
